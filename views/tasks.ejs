@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Tasks</title>
+  </head>
+
+  <body>
+    <h1>My Tasks</h1>
+
+    <p>Welcome, <%= user.username %></p>
+
+    <p>
+      <a href="/dashboard">Dashboard</a>
+    </p>
+
+    <p>
+      <a href="/tasks/add">Add Task</a>
+    </p>
+
+    <hr />
+
+    <% if (tasks.length === 0) { %>
+      <p>No tasks yet.</p>
+    <% } else { %>
+      <ul>
+        <% tasks.forEach((task) => { %>
+          <li>
+            <strong><%= task.title %></strong>
+            — <%= task.status %>
+
+            <% if (task.description) { %>
+              <p><%= task.description %></p>
+            <% } %>
+
+            <% if (task.dueDate) { %>
+              <p>
+                Due:
+                <%= new Date(task.dueDate).toLocaleDateString() %>
+              </p>
+            <% } %>
+
+            <a href="/tasks/edit/<%= task.id %>">Edit</a>
+
+            <form
+              method="POST"
+              action="/tasks/delete/<%= task.id %>"
+              style="display: inline"
+            >
+              <button type="submit">Delete</button>
+            </form>
+
+            <form
+              method="POST"
+              action="/tasks/status/<%= task.id %>"
+              style="display: inline"
+            >
+              <button type="submit">
+                <%= task.status === "completed"
+                  ? "Mark Pending"
+                  : "Mark Complete" %>
+              </button>
+            </form>
+          </li>
+
+          <br />
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <p>
+      <a href="/logout">Logout</a>
+    </p>
+  </body>
+</html>
