@@ -25,12 +25,10 @@ const createTaskModel = require("./models/Task");
 const app = express();
 const HTTP_PORT = process.env.PORT || 3000;
 
-/* ------------------------- EJS SETUP ------------------------- */
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-/* ------------------------- MIDDLEWARE ------------------------- */
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -45,7 +43,6 @@ app.use(
   })
 );
 
-/* -------------------- POSTGRESQL CONNECTION -------------------- */
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
@@ -62,14 +59,11 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 
 const Task = createTaskModel(sequelize);
 
-/* --------------------- DATABASE CONNECTIONS --------------------- */
-
 const databaseConnection = Promise.all([
   mongoose.connect(process.env.MONGODB_URI),
   sequelize.sync(),
 ]);
 
-// Wait for both databases before processing any route
 app.use(async (req, res, next) => {
   try {
     await databaseConnection;
@@ -83,8 +77,6 @@ app.use(async (req, res, next) => {
   }
 });
 
-/* -------------------- AUTHENTICATION MIDDLEWARE -------------------- */
-
 function ensureLogin(req, res, next) {
   if (!req.session.user) {
     return res.redirect("/login");
@@ -93,8 +85,6 @@ function ensureLogin(req, res, next) {
   next();
 }
 
-/* ------------------------- HOME ROUTE ------------------------- */
-
 app.get("/", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -102,10 +92,6 @@ app.get("/", (req, res) => {
 
   return res.redirect("/login");
 });
-
-/* ============================================================
-   REGISTER ROUTES
-   ============================================================ */
 
 app.get("/register", (req, res) => {
   return res.render("register", {
@@ -153,9 +139,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-/* ============================================================
-   LOGIN ROUTES
-   ============================================================ */
 
 app.get("/login", (req, res) => {
   return res.render("login", {
@@ -210,7 +193,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-/* ------------------------- LOGOUT ------------------------- */
 
 app.get("/logout", (req, res) => {
   req.session.reset();
@@ -218,19 +200,12 @@ app.get("/logout", (req, res) => {
   return res.redirect("/login");
 });
 
-/* ============================================================
-   DASHBOARD
-   ============================================================ */
-
 app.get("/dashboard", ensureLogin, (req, res) => {
   return res.render("dashboard", {
     user: req.session.user,
   });
 });
 
-/* ============================================================
-   DISPLAY ALL TASKS
-   ============================================================ */
 
 app.get("/tasks", ensureLogin, async (req, res) => {
   try {
@@ -255,10 +230,6 @@ app.get("/tasks", ensureLogin, async (req, res) => {
     });
   }
 });
-
-/* ============================================================
-   ADD TASK
-   ============================================================ */
 
 app.get("/tasks/add", ensureLogin, (req, res) => {
   return res.render("addTask", {
@@ -296,10 +267,6 @@ app.post("/tasks/add", ensureLogin, async (req, res) => {
     });
   }
 });
-
-/* ============================================================
-   EDIT TASK
-   ============================================================ */
 
 app.get("/tasks/edit/:id", ensureLogin, async (req, res) => {
   try {
@@ -376,10 +343,6 @@ app.post("/tasks/edit/:id", ensureLogin, async (req, res) => {
   }
 });
 
-/* ============================================================
-   DELETE TASK
-   ============================================================ */
-
 app.post("/tasks/delete/:id", ensureLogin, async (req, res) => {
   try {
     await Task.destroy({
@@ -397,9 +360,6 @@ app.post("/tasks/delete/:id", ensureLogin, async (req, res) => {
   }
 });
 
-/* ============================================================
-   CHANGE TASK STATUS
-   ============================================================ */
 
 app.post("/tasks/status/:id", ensureLogin, async (req, res) => {
   try {
@@ -429,12 +389,7 @@ app.post("/tasks/status/:id", ensureLogin, async (req, res) => {
   }
 });
 
-/* ============================================================
-   LOCAL SERVER
-   ============================================================ */
 
-// Runs app.listen() only when running locally with:
-// node server.js
 if (require.main === module) {
   databaseConnection
     .then(() => {
@@ -450,7 +405,5 @@ if (require.main === module) {
       console.error("Startup error:", err);
     });
 }
-
-/* -------------------- EXPORT FOR VERCEL -------------------- */
 
 module.exports = app;
