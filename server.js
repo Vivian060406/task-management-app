@@ -25,16 +25,17 @@ const createTaskModel = require("./models/Task");
 const app = express();
 const HTTP_PORT = process.env.PORT || 3000;
 
-// EJS setup
+/* ------------------------- EJS SETUP ------------------------- */
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Middleware
+/* ------------------------- MIDDLEWARE ------------------------- */
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Client session setup
 app.use(
   clientSessions({
     cookieName: "session",
@@ -44,18 +45,45 @@ app.use(
   })
 );
 
+/* -------------------- POSTGRESQL CONNECTION -------------------- */
+
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
+
   dialectOptions: {
     ssl: {
       require: true,
       rejectUnauthorized: false,
     },
   },
+
   logging: false,
 });
 
 const Task = createTaskModel(sequelize);
+
+/* --------------------- DATABASE CONNECTIONS --------------------- */
+
+const databaseConnection = Promise.all([
+  mongoose.connect(process.env.MONGODB_URI),
+  sequelize.sync(),
+]);
+
+// Wait for both databases before processing any route
+app.use(async (req, res, next) => {
+  try {
+    await databaseConnection;
+    next();
+  } catch (err) {
+    console.error("Database connection error:", err);
+
+    return res
+      .status(500)
+      .send("Unable to connect to the database.");
+  }
+});
+
+/* -------------------- AUTHENTICATION MIDDLEWARE -------------------- */
 
 function ensureLogin(req, res, next) {
   if (!req.session.user) {
@@ -65,7 +93,8 @@ function ensureLogin(req, res, next) {
   next();
 }
 
-// Home route
+/* ------------------------- HOME ROUTE ------------------------- */
+
 app.get("/", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -74,17 +103,25 @@ app.get("/", (req, res) => {
   return res.redirect("/login");
 });
 
-// Register page
+/* ============================================================
+   REGISTER ROUTES
+   ============================================================ */
+
 app.get("/register", (req, res) => {
-  res.render("register", {
+  return res.render("register", {
     message: "",
   });
 });
 
-// Register user
 app.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.render("register", {
+        message: "All fields are required.",
+      });
+    }
 
     const existingUser = await User.findOne({
       $or: [{ username }, { email }],
@@ -116,17 +153,25 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login page
+/* ============================================================
+   LOGIN ROUTES
+   ============================================================ */
+
 app.get("/login", (req, res) => {
-  res.render("login", {
+  return res.render("login", {
     message: "",
   });
 });
 
-// Login user
 app.post("/login", async (req, res) => {
   try {
     const { login, password } = req.body;
+
+    if (!login || !password) {
+      return res.render("login", {
+        message: "Username/email and password are required.",
+      });
+    }
 
     const user = await User.findOne({
       $or: [{ username: login }, { email: login }],
@@ -165,12 +210,27 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Dashboard
+/* ------------------------- LOGOUT ------------------------- */
+
+app.get("/logout", (req, res) => {
+  req.session.reset();
+
+  return res.redirect("/login");
+});
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+
 app.get("/dashboard", ensureLogin, (req, res) => {
-  res.render("dashboard", {
+  return res.render("dashboard", {
     user: req.session.user,
   });
 });
+
+/* ============================================================
+   DISPLAY ALL TASKS
+   ============================================================ */
 
 app.get("/tasks", ensureLogin, async (req, res) => {
   try {
@@ -178,22 +238,27 @@ app.get("/tasks", ensureLogin, async (req, res) => {
       where: {
         userId: req.session.user.id,
       },
+
       order: [["createdAt", "DESC"]],
     });
 
-    res.render("tasks", {
+    return res.render("tasks", {
       user: req.session.user,
       tasks,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Load tasks error:", err);
 
-    res.render("tasks", {
+    return res.render("tasks", {
       user: req.session.user,
       tasks: [],
     });
   }
 });
+
+/* ============================================================
+   ADD TASK
+   ============================================================ */
 
 app.get("/tasks/add", ensureLogin, (req, res) => {
   return res.render("addTask", {
@@ -205,6 +270,13 @@ app.get("/tasks/add", ensureLogin, (req, res) => {
 app.post("/tasks/add", ensureLogin, async (req, res) => {
   try {
     const { title, description, dueDate, status } = req.body;
+
+    if (!title) {
+      return res.render("addTask", {
+        user: req.session.user,
+        message: "Task title is required.",
+      });
+    }
 
     await Task.create({
       title,
@@ -225,46 +297,9 @@ app.post("/tasks/add", ensureLogin, async (req, res) => {
   }
 });
 
-app.post("/tasks/delete/:id", ensureLogin, async (req, res) => {
-  try {
-    await Task.destroy({
-      where: {
-        id: req.params.id,
-        userId: req.session.user.id,
-      },
-    });
-
-    return res.redirect("/tasks");
-  } catch (err) {
-    console.error("Delete task error:", err);
-    return res.redirect("/tasks");
-  }
-});
-
-app.post("/tasks/status/:id", ensureLogin, async (req, res) => {
-  try {
-    const task = await Task.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.session.user.id,
-      },
-    });
-
-    if (!task) {
-      return res.redirect("/tasks");
-    }
-
-    task.status =
-      task.status === "completed" ? "pending" : "completed";
-
-    await task.save();
-
-    return res.redirect("/tasks");
-  } catch (err) {
-    console.error("Update status error:", err);
-    return res.redirect("/tasks");
-  }
-});
+/* ============================================================
+   EDIT TASK
+   ============================================================ */
 
 app.get("/tasks/edit/:id", ensureLogin, async (req, res) => {
   try {
@@ -286,6 +321,7 @@ app.get("/tasks/edit/:id", ensureLogin, async (req, res) => {
     });
   } catch (err) {
     console.error("Load edit task error:", err);
+
     return res.redirect("/tasks");
   }
 });
@@ -305,6 +341,14 @@ app.post("/tasks/edit/:id", ensureLogin, async (req, res) => {
 
     const { title, description, dueDate, status } = req.body;
 
+    if (!title) {
+      return res.render("editTask", {
+        user: req.session.user,
+        task,
+        message: "Task title is required.",
+      });
+    }
+
     await task.update({
       title,
       description: description || null,
@@ -318,34 +362,95 @@ app.post("/tasks/edit/:id", ensureLogin, async (req, res) => {
 
     return res.render("editTask", {
       user: req.session.user,
+
       task: {
         id: req.params.id,
-        ...req.body,
+        title: req.body.title,
+        description: req.body.description,
+        dueDate: req.body.dueDate,
+        status: req.body.status,
       },
+
       message: "Unable to update task. Please try again.",
     });
   }
 });
 
-// Logout
-app.get("/logout", (req, res) => {
-  req.session.reset();
+/* ============================================================
+   DELETE TASK
+   ============================================================ */
 
-  return res.redirect("/login");
+app.post("/tasks/delete/:id", ensureLogin, async (req, res) => {
+  try {
+    await Task.destroy({
+      where: {
+        id: req.params.id,
+        userId: req.session.user.id,
+      },
+    });
+
+    return res.redirect("/tasks");
+  } catch (err) {
+    console.error("Delete task error:", err);
+
+    return res.redirect("/tasks");
+  }
 });
 
+/* ============================================================
+   CHANGE TASK STATUS
+   ============================================================ */
 
-Promise.all([
-  mongoose.connect(process.env.MONGODB_URI),
-  sequelize.sync(),
-])
-  .then(() => {
-    console.log("MongoDB and PostgreSQL connected.");
-
-    app.listen(HTTP_PORT, () => {
-      console.log(`Server running on http://localhost:${HTTP_PORT}`);
+app.post("/tasks/status/:id", ensureLogin, async (req, res) => {
+  try {
+    const task = await Task.findOne({
+      where: {
+        id: req.params.id,
+        userId: req.session.user.id,
+      },
     });
-  })
-  .catch((err) => {
-    console.error("Startup error:", err);
-  });
+
+    if (!task) {
+      return res.redirect("/tasks");
+    }
+
+    task.status =
+      task.status === "completed"
+        ? "pending"
+        : "completed";
+
+    await task.save();
+
+    return res.redirect("/tasks");
+  } catch (err) {
+    console.error("Update status error:", err);
+
+    return res.redirect("/tasks");
+  }
+});
+
+/* ============================================================
+   LOCAL SERVER
+   ============================================================ */
+
+// Runs app.listen() only when running locally with:
+// node server.js
+if (require.main === module) {
+  databaseConnection
+    .then(() => {
+      console.log("MongoDB and PostgreSQL connected.");
+
+      app.listen(HTTP_PORT, () => {
+        console.log(
+          `Server running on http://localhost:${HTTP_PORT}`
+        );
+      });
+    })
+    .catch((err) => {
+      console.error("Startup error:", err);
+    });
+}
+
+/* -------------------- EXPORT FOR VERCEL -------------------- */
+
+module.exports = app;
