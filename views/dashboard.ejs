@@ -3,21 +3,56 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Dashboard | Task Manager</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
-    <h1>Dashboard</h1>
+    <main class="page">
 
-    <p>Welcome, <%= user.username %></p>
-    <p>Email: <%= user.email %></p>
+      <nav class="topbar">
+        <div class="brand">Task Manager</div>
 
-    <p>
-      <a href="/tasks">View My Tasks</a>
-    </p>
+        <div class="nav-links">
+          <a href="/tasks">My Tasks</a>
+          <a href="/logout" class="logout">Logout</a>
+        </div>
+      </nav>
 
-    <p>
-      <a href="/logout">Logout</a>
-    </p>
+      <div class="card welcome-card">
+
+        <h1>Welcome, <%= user.username %> 👋</h1>
+
+        <p class="subtitle">
+          Keep track of your tasks and stay organized.
+        </p>
+
+        <div class="dashboard-grid">
+
+          <div class="dashboard-item">
+            <span>Username</span>
+            <strong><%= user.username %></strong>
+          </div>
+
+          <div class="dashboard-item">
+            <span>Email</span>
+            <strong><%= user.email %></strong>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <a href="/tasks" class="btn btn-primary">
+            View My Tasks
+          </a>
+
+          <a href="/tasks/add" class="btn btn-secondary">
+            Add New Task
+          </a>
+        </div>
+
+      </div>
+
+    </main>
   </body>
 </html>
