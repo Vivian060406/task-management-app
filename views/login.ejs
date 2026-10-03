@@ -3,43 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Login | Task Manager</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
-    <h1>Login</h1>
+    <main class="page-small">
 
-    <form method="POST" action="/login">
-      <label for="login">Username or Email</label><br />
-      <input
-        type="text"
-        id="login"
-        name="login"
-        required
-      />
+      <div class="auth-header">
+        <h1>Welcome back 👋</h1>
+        <p class="subtitle">
+          Sign in to manage your tasks.
+        </p>
+      </div>
 
-      <br /><br />
+      <div class="card auth-card">
+        <form method="POST" action="/login">
 
-      <label for="password">Password</label><br />
-      <input
-        type="password"
-        id="password"
-        name="password"
-        required
-      />
+          <div class="form-group">
+            <label for="login">Username or Email</label>
+            <input
+              type="text"
+              id="login"
+              name="login"
+              placeholder="Enter your username or email"
+              required
+            />
+          </div>
 
-      <br /><br />
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-      <button type="submit">Login</button>
-    </form>
+          <button type="submit" class="btn btn-primary">
+            Login
+          </button>
 
-    <% if (message) { %>
-      <p><%= message %></p>
-    <% } %>
+        </form>
 
-    <p>
-      Don’t have an account?
-      <a href="/register">Register</a>
-    </p>
+        <% if (message) { %>
+          <p class="message"><%= message %></p>
+        <% } %>
+
+        <p class="auth-footer">
+          Don't have an account?
+          <a href="/register">Create one</a>
+        </p>
+      </div>
+
+    </main>
   </body>
 </html>
