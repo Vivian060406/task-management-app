@@ -3,72 +3,97 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Task</title>
+    <title>Edit Task | Task Manager</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
-    <h1>Edit Task</h1>
+    <main class="page-small">
 
-    <p>
-      <a href="/tasks">Back to My Tasks</a>
-    </p>
+      <a href="/tasks" class="back-link">
+        ← Back to My Tasks
+      </a>
 
-    <form method="POST" action="/tasks/edit/<%= task.id %>">
-      <label for="title">Title</label><br />
-      <input
-        type="text"
-        id="title"
-        name="title"
-        value="<%= task.title %>"
-        required
-      />
+      <div class="card">
 
-      <br /><br />
+        <h1>Edit Task</h1>
 
-      <label for="description">Description</label><br />
-      <textarea
-        id="description"
-        name="description"
-      ><%= task.description || "" %></textarea>
+        <p class="subtitle">
+          Update your task details or change its status.
+        </p>
 
-      <br /><br />
+        <br />
 
-      <label for="dueDate">Due Date</label><br />
-      <input
-        type="date"
-        id="dueDate"
-        name="dueDate"
-        value="<%= task.dueDate
-          ? new Date(task.dueDate).toISOString().split('T')[0]
-          : '' %>"
-      />
+        <form method="POST" action="/tasks/edit/<%= task.id %>">
 
-      <br /><br />
+          <div class="form-group">
+            <label for="title">Title</label>
 
-      <label for="status">Status</label><br />
-      <select id="status" name="status">
-        <option
-          value="pending"
-          <%= task.status === "pending" ? "selected" : "" %>
-        >
-          Pending
-        </option>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value="<%= task.title %>"
+              required
+            />
+          </div>
 
-        <option
-          value="completed"
-          <%= task.status === "completed" ? "selected" : "" %>
-        >
-          Completed
-        </option>
-      </select>
+          <div class="form-group">
+            <label for="description">Description</label>
 
-      <br /><br />
+            <textarea
+              id="description"
+              name="description"
+            ><%= task.description || "" %></textarea>
+          </div>
 
-      <button type="submit">Update Task</button>
-    </form>
+          <div class="form-group">
+            <label for="dueDate">Due Date</label>
 
-    <% if (message) { %>
-      <p><%= message %></p>
-    <% } %>
+            <input
+              type="date"
+              id="dueDate"
+              name="dueDate"
+              value="<%= task.dueDate
+                ? new Date(task.dueDate).toISOString().split('T')[0]
+                : '' %>"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+
+            <select id="status" name="status">
+
+              <option
+                value="pending"
+                <%= task.status === "pending" ? "selected" : "" %>
+              >
+                Pending
+              </option>
+
+              <option
+                value="completed"
+                <%= task.status === "completed" ? "selected" : "" %>
+              >
+                Completed
+              </option>
+
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Update Task
+          </button>
+
+        </form>
+
+        <% if (message) { %>
+          <p class="message"><%= message %></p>
+        <% } %>
+
+      </div>
+
+    </main>
   </body>
 </html>
