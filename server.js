@@ -6,7 +6,7 @@
 *
 * https://www.senecapolytechnic.ca/about/policies/academic-integrity-policy.html
 *
-* Name: _Khanh Vy Tran___ Student ID: _120175245__ Date: _8/4/2026___
+* Name: Khanh Vy Tran
 *
 ********************************************************************************/
 require("dotenv").config();
