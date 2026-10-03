@@ -3,74 +3,130 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Tasks</title>
+    <title>My Tasks | Task Manager</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
-    <h1>My Tasks</h1>
+    <main class="page">
 
-    <p>Welcome, <%= user.username %></p>
+      <nav class="topbar">
+        <div class="brand">Task Manager</div>
 
-    <p>
-      <a href="/dashboard">Dashboard</a>
-    </p>
+        <div class="nav-links">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/logout" class="logout">Logout</a>
+        </div>
+      </nav>
 
-    <p>
-      <a href="/tasks/add">Add Task</a>
-    </p>
+      <div class="tasks-header">
 
-    <hr />
+        <div>
+          <h1>My Tasks</h1>
+          <p class="subtitle">
+            Welcome, <%= user.username %>. Here's what you're working on.
+          </p>
+        </div>
 
-    <% if (tasks.length === 0) { %>
-      <p>No tasks yet.</p>
-    <% } else { %>
-      <ul>
-        <% tasks.forEach((task) => { %>
-          <li>
-            <strong><%= task.title %></strong>
-            — <%= task.status %>
+        <a href="/tasks/add" class="btn btn-primary">
+          + Add Task
+        </a>
 
-            <% if (task.description) { %>
-              <p><%= task.description %></p>
-            <% } %>
+      </div>
 
-            <% if (task.dueDate) { %>
-              <p>
-                Due:
-                <%= new Date(task.dueDate).toLocaleDateString() %>
-              </p>
-            <% } %>
+      <% if (tasks.length === 0) { %>
 
-            <a href="/tasks/edit/<%= task.id %>">Edit</a>
+        <div class="empty-state">
+          <h2>No tasks yet</h2>
+          <p>Create your first task to get started.</p>
 
-            <form
-              method="POST"
-              action="/tasks/delete/<%= task.id %>"
-              style="display: inline"
-            >
-              <button type="submit">Delete</button>
-            </form>
+          <a href="/tasks/add" class="btn btn-primary">
+            + Add Your First Task
+          </a>
+        </div>
 
-            <form
-              method="POST"
-              action="/tasks/status/<%= task.id %>"
-              style="display: inline"
-            >
-              <button type="submit">
-                <%= task.status === "completed"
-                  ? "Mark Pending"
-                  : "Mark Complete" %>
-              </button>
-            </form>
-          </li>
+      <% } else { %>
 
-          <br />
-        <% }) %>
-      </ul>
-    <% } %>
+        <div class="task-list">
 
-    <p>
-      <a href="/logout">Logout</a>
-    </p>
+          <% tasks.forEach((task) => { %>
+
+            <div class="task-card">
+
+              <div class="task-top">
+
+                <h2 class="task-title">
+                  <%= task.title %>
+                </h2>
+
+                <span
+                  class="status <%= task.status === 'completed'
+                    ? 'status-completed'
+                    : 'status-pending' %>"
+                >
+                  <%= task.status %>
+                </span>
+
+              </div>
+
+              <% if (task.description) { %>
+                <p class="task-description">
+                  <%= task.description %>
+                </p>
+              <% } %>
+
+              <% if (task.dueDate) { %>
+                <p class="task-due">
+                  Due:
+                  <%= new Date(task.dueDate).toLocaleDateString() %>
+                </p>
+              <% } %>
+
+              <div class="task-actions">
+
+                <a
+                  href="/tasks/edit/<%= task.id %>"
+                  class="btn btn-secondary btn-small"
+                >
+                  Edit
+                </a>
+
+                <form
+                  method="POST"
+                  action="/tasks/status/<%= task.id %>"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-secondary btn-small"
+                  >
+                    <%= task.status === "completed"
+                      ? "Mark Pending"
+                      : "Mark Complete" %>
+                  </button>
+                </form>
+
+                <form
+                  method="POST"
+                  action="/tasks/delete/<%= task.id %>"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-danger btn-small"
+                  >
+                    Delete
+                  </button>
+                </form>
+
+              </div>
+
+            </div>
+
+          <% }) %>
+
+        </div>
+
+      <% } %>
+
+    </main>
   </body>
 </html>
