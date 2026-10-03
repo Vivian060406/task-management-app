@@ -130,6 +130,6 @@ Through this project, I practiced:
 
 ## 🎓 Course Context
 
-Originally developed for **WEB322 — Web Programming Principles** at Seneca Polytechnic.
+Originally developed for **WEB322 - Web Programming Principles** at Seneca Polytechnic.
 
 The repository is presented here as part of my programming portfolio.
