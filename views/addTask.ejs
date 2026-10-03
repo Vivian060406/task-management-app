@@ -3,57 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Task</title>
+    <title>Add Task | Task Manager</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
 
   <body>
-    <h1>Add Task</h1>
+    <main class="page-small">
 
-    <p>
-      <a href="/tasks">Back to My Tasks</a>
-    </p>
+      <a href="/tasks" class="back-link">
+        ← Back to My Tasks
+      </a>
 
-    <form method="POST" action="/tasks/add">
-      <label for="title">Title</label><br />
-      <input
-        type="text"
-        id="title"
-        name="title"
-        required
-      />
+      <div class="card">
 
-      <br /><br />
+        <h1>Add Task</h1>
 
-      <label for="description">Description</label><br />
-      <textarea
-        id="description"
-        name="description"
-      ></textarea>
+        <p class="subtitle">
+          Create a new task and keep track of what needs to be done.
+        </p>
 
-      <br /><br />
+        <br />
 
-      <label for="dueDate">Due Date</label><br />
-      <input
-        type="date"
-        id="dueDate"
-        name="dueDate"
-      />
+        <form method="POST" action="/tasks/add">
 
-      <br /><br />
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              placeholder="What do you need to do?"
+              required
+            />
+          </div>
 
-      <label for="status">Status</label><br />
-      <select id="status" name="status">
-        <option value="pending">Pending</option>
-        <option value="completed">Completed</option>
-      </select>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Add some details..."
+            ></textarea>
+          </div>
 
-      <br /><br />
+          <div class="form-group">
+            <label for="dueDate">Due Date</label>
+            <input
+              type="date"
+              id="dueDate"
+              name="dueDate"
+            />
+          </div>
 
-      <button type="submit">Create Task</button>
-    </form>
+          <div class="form-group">
+            <label for="status">Status</label>
 
-    <% if (message) { %>
-      <p><%= message %></p>
-    <% } %>
+            <select id="status" name="status">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Create Task
+          </button>
+
+        </form>
+
+        <% if (message) { %>
+          <p class="message"><%= message %></p>
+        <% } %>
+
+      </div>
+
+    </main>
   </body>
 </html>
