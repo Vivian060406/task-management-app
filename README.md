@@ -4,6 +4,20 @@ A full-stack task management application with user authentication and personaliz
 
 Users can create an account, sign in, and manage their own tasks through a personalized dashboard.
 
+🔗 **Live Demo:** https://web-322-assignment3-nine.vercel.app/
+
+---
+
+## 📸 Screenshots
+
+### Task Dashboard
+
+![Task Dashboard](screenshots/task-dashboard.png)
+
+### Edit Task
+
+![Edit Task](screenshots/edit-task.png)
+
 ---
 
 ## 📖 About
