@@ -10,9 +10,13 @@ Users can create an account, sign in, and manage their own tasks through a perso
 
 ## 📸 Screenshots
 
-### Task Dashboard
+### Login
 
-![Task Dashboard](screenshots/task-dashboard.png)
+![Login](screenshots/login.png)
+
+### Task Management
+
+![Task Management](screenshots/task-list.png)
 
 ### Edit Task
 
